@@ -5,20 +5,32 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  ci-build:
     runs-on: self-hosted
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build and Deploy Docker Container
+      - name: Lint (dotnet format)
+        run: |
+          docker run --rm -v $(pwd):/src -w /src mcr.microsoft.com/dotnet/sdk:10.0 \
+          dotnet format --verify-no-changes
+
+      - name: Build Docker Image
+        run: docker build -t dotnet-app-prod .
+
+  deploy:
+    needs: ci-build 
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy Container
         run: |
           sudo fuser -k 8080/tcp || true
           
           docker rm -f my-api-prod || true
-          
-          docker build -t dotnet-app-prod .
           
           docker run -d --name my-api-prod \
             -p 8080:8080 \
