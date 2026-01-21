@@ -14,10 +14,11 @@ jobs:
 
       - name: Build and Deploy Docker Container
         run: |
-          docker build -t dotnet-app-prod .
+          sudo fuser -k 8080/tcp || true
           
-          docker stop my-api-prod || true
-          docker rm my-api-prod || true
+          docker rm -f my-api-prod || true
+          
+          docker build -t dotnet-app-prod .
           
           docker run -d --name my-api-prod \
             -p 8080:8080 \
