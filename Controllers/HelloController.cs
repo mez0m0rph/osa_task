@@ -9,6 +9,6 @@ public class HelloController : ControllerBase
     [HttpGet]
     public IActionResult Hello()
     {
-        return Ok(new { message = "Hello, world!" });
+        return Ok(new { message = "Hello, (test) world!" });
     }
 }
