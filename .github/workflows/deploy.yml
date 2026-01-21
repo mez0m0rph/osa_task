@@ -8,6 +8,9 @@ jobs:
   ci-build:
     runs-on: self-hosted
     steps:
+      - name: Cleanup workspace permissions
+        run: sudo chown -R $USER:$USER .
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -23,15 +26,16 @@ jobs:
     needs: ci-build 
     runs-on: self-hosted
     steps:
+      - name: Cleanup workspace permissions
+        run: sudo chown -R $USER:$USER .
+
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Deploy Container
         run: |
           sudo fuser -k 8080/tcp || true
-          
           docker rm -f my-api-prod || true
-          
           docker run -d --name my-api-prod \
             -p 8080:8080 \
             -e ConnectionStrings__DefaultConnection="Host=172.17.0.1;Port=5432;Database=project_db;Username=project_user;Password=secure_pass" \
